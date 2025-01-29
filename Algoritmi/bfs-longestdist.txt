@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+vector<vector<int>> graph;
+vector<int> inDeg;
+vector<int> dist;
+
+int main()
+{
+    int n, m, l, r, c;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    inDeg.assign(n + 1, 0);
+    vector<int> dist(n + 1, -1);
+    for (int i = 0; i < m; i++) {
+        cin >> l >> r >> c;        
+        if (find(graph[l].begin(), graph[l].end(), r) == graph[l].end())
+            graph[l].push_back(r);
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int node : graph[i])
+            inDeg[node]++;
+    }   
+    int cnt = 0;
+    dist[1] = 0;
+    deque<int> bfs = { 1 };
+    while (!bfs.empty()) {
+        int aux = bfs.size();
+        cnt++;
+        for (int i = 0; i < aux; i++) {
+            int curr = bfs.front();
+            bfs.pop_front();
+            for (int node : graph[curr]) {
+                inDeg[node]--;
+                if (!inDeg[node]) {
+                    dist[node] = dist[curr] + 1;
+                    bfs.push_back(node);
+                }
+            }
+        }
+    }
+    int distMax = 0;
+    for (int i = 1; i <= n; i++)
+        distMax = max(distMax, dist[i]);
+    for (int i = 1; i <= n; i++) {
+        if (dist[i] == distMax)
+            cout << i << " ";
+    }
+    return 0;
+}

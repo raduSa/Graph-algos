@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+#include <unordered_set>
+
+using namespace std;
+
+vector<vector<int>> graph;
+vector<bool> visited;
+vector<int> niv;
+vector<int> niv_min;
+vector<int> parent;
+unordered_set<int> critical;
+
+int dfs(int curr, int curr_niv) {
+    visited[curr] = 1;   
+    niv[curr] = curr_niv;
+    niv_min[curr] = curr_niv;
+    for (int node : graph[curr]) {
+        if (visited[node]) {
+            niv_min[curr] = min(niv_min[curr], niv[node]);
+        }
+        else {
+            int aux = dfs(node, curr_niv + 1);
+            if (aux >= niv[curr])
+                critical.insert(curr);
+            else
+                niv_min[curr] = min(niv_min[curr], aux);
+        }
+    }
+    return niv_min[curr];
+}
+
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    niv.resize(n + 1);
+    niv_min.resize(n + 1);
+    parent.resize(n + 1);
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+    }
+    visited.assign(n + 1, 0);
+    for (int i = 0; i < m; i++) {
+        int l, r;
+        cin >> l >> r;
+        graph[l].push_back(r);
+        graph[r].push_back(l);
+    }
+    dfs(1, 1);
+    for (int n : critical)
+        cout << n << " ";
+    return 0;
+}
