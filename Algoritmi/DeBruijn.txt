@@ -1,0 +1,42 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include <unordered_set>
+ 
+using namespace std;
+ 
+vector<int> st({ 0 });
+vector<int> res;
+ 
+int main()
+{
+    int n, m;
+    cin >> n;
+    if (n == 1) {
+        cout << 10;
+        return 0;
+    }
+    vector<vector<int>> graph(pow(2, n - 1));
+    for (int i = 0; i < pow(2, n-1); i++) { 
+        int nextNode = (i << 1) % int(pow(2, n - 1));
+        graph[i].push_back(nextNode);
+        graph[i].push_back(nextNode + 1);
+    }
+ 
+    while (!st.empty()) {
+        int currNode = st.back();
+        if (!graph[currNode].empty()) {
+            st.push_back(graph[currNode].back());
+            graph[currNode].pop_back();
+        }
+        else {
+            res.push_back(currNode & 1);
+            st.pop_back();
+        }
+    }
+    for (int i = 0; i < n - 2; i++) {
+        res.push_back(0);
+    }
+    for (auto i = res.rbegin(); i != res.rend(); i++)
+        cout << *i;
+    return 0;
+}

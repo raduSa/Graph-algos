@@ -1,0 +1,66 @@
+#include <iostream>
+#include <bits/stdc++.h>
+
+using namespace std;
+
+vector<vector<pair<int, int>>> graph;
+vector<pair<int, int>> queries;
+vector<vector<long long>> dist;
+vector<vector<int>> path;
+
+int main()
+{
+    int n, m, q;
+    cin >> n >> m >> q;
+    dist.assign(n + 1, vector<long long>(n + 1));
+    path.assign(n + 1, vector<int>(n + 1));
+    // init matrixes
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i == j) {
+                dist[i][j] = 0;
+            }
+            else {
+                dist[i][j] = LLONG_MAX;
+            }
+            path[i][j] = n + 1;
+        }
+    }
+        
+    for (int i = 0; i < m; i++) {
+        int l, r, p;
+        cin >> l >> r >> p;
+        dist[l][r] = min(dist[l][r], (long long)p);
+        dist[r][l] = min(dist[r][l], (long long)p);
+        path[l][r] = l;
+        path[r][l] = r;
+    }
+    // read queries
+    for (int i = 0; i < q; i++) {
+        int l, r;
+        cin >> l >> r;
+        queries.push_back(make_pair(l, r));
+    }
+
+    for (int k = 1; k <= n; k++)
+        for (int i = 1; i <= n; i++)
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][k] != LLONG_MAX && dist[k][j] != LLONG_MAX && dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    path[i][j] = path[k][j];
+                }
+            }
+
+    for (auto q : queries) {
+        if (dist[q.first][q.second] == LLONG_MAX)
+            cout << -1 << endl;
+        else cout << dist[q.first][q.second] << endl;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        cout << endl;
+        for (int j = 1; j <= n; j++)
+            cout << path[i][j] << " ";
+    }
+    return 0;
+}

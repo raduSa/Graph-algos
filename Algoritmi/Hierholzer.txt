@@ -1,0 +1,53 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include <unordered_set>
+ 
+using namespace std;
+ 
+vector<unordered_set<int>> graph;
+vector<int> st({ 1 });
+vector<int> res;
+ 
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    int x, y;
+    for (int i = 0; i < m; i++) {
+        cin >> x >> y;
+        graph[x].insert(y);
+        graph[y].insert(x);
+    }
+    // check all nodes have even deg
+    for (int i = 1; i <= n; i++) {
+        if (graph[i].size() % 2 != 0) {
+            cout << "IMPOSSIBLE";
+            return 0;
+        }
+    }
+    int currNode = 1;
+    while (!st.empty()) {
+        while (!graph[currNode].empty()) {
+            int nextNode = *graph[currNode].begin();
+            graph[currNode].erase(nextNode);
+            graph[nextNode].erase(currNode);
+            st.push_back(nextNode);
+            currNode = nextNode;
+        }
+        while (graph[currNode].empty()) {
+            res.push_back(currNode);
+            st.pop_back();
+            if (!st.empty())
+                currNode = st.back();
+            else break;
+        }
+    }
+    if (res.size() != m + 1) {
+        cout << "IMPOSSIBLE";
+        return 0;
+    }
+    for (auto i = res.rbegin(); i != res.rend(); i++)
+        cout << *i << " ";
+    return 0;
+}

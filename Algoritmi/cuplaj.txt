@@ -1,0 +1,101 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+vector<vector<long long>> graph;
+vector<int> parents;
+
+bool find_increasing_path(int n) {
+    vector<int> visited(n + 1, 0);
+    visited[1] = 1;
+    deque<int> bfs = { 1 };
+    while (!bfs.empty()) {
+        int curr = bfs.front();
+        bfs.pop_front();
+        for (int node = 1; node <= n; node++) {
+            if (!visited[node] && graph[curr][node] != 0) {
+                visited[node] = 1;
+                parents[node] = curr;
+                // reached final node
+                if (node == n)
+                    return true;
+                bfs.push_back(node);
+            }
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    // source - 1, end - n
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + m + 3);
+    parents.resize(n + m + 3);
+    for (int i = 1; i <= n + m + 2; i++) {
+        graph[i].assign(n + m + 3, 0);
+    }
+    for (int i = 2; i <= n + 1; i++) {
+        graph[1][i] = 1;
+    }
+    // vaccinuri
+    vector<int> doze_vaccin;
+    for (int i = 0; i < m; i++) {
+        int x;
+        cin >> x;
+        doze_vaccin.push_back(x);
+    }
+    int spital = 1 + n + 1;
+    for (int x : doze_vaccin) {
+        graph[spital][1 + n + m + 1] = x;
+        spital++;
+    }
+    // pacienti
+    for (int i = 2; i <= n + 1; i++) {
+        int cnt;
+        cin >> cnt;
+        for (int j = 0; j < cnt; j++) {
+            int x;
+            cin >> x;
+            graph[i][x + 1 + n] = 1;
+        }
+    }
+
+    long long flux = 0;
+    while (find_increasing_path(1 + n + m + 1)) {
+        int curr = n;
+        long long path_min = INT_MAX;
+        // get min on 
+        while (curr != 1) {
+            int parent = parents[curr];
+            path_min = min(path_min, graph[parent][curr]);
+            curr = parent;
+        }
+        flux += path_min;
+        // update graph
+        curr = 1 + n + m + 1;
+        while (curr != 1) {
+            int parent = parents[curr];
+            graph[parent][curr] -= path_min;
+            graph[curr][parent] += path_min;
+            curr = parent;
+        }
+    }
+    cout << n - flux << endl;
+    for (int i = 1; i <= 1 + n + m + 1; i++) {
+        cout << endl;
+        for (int j = 1; j <= 1 + n + m + 1; j++) {
+            cout << graph[i][j] << " ";
+        }
+    }
+    // afisare muchii
+    for (int j = 1 + n + 1; j <= 1 + n + m; j++) {
+        for (int i = 2; i <= n + 1; i++) {
+            if (graph[j][i])
+                cout << i  - 1 << " - " << j - n - 1 << endl;
+        }
+    }
+}

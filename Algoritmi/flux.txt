@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+vector<vector<long long>> graph;
+vector<int> parents;
+
+bool find_increasing_path(int n) {
+    vector<int> visited(n + 1, 0);
+    visited[1] = 1;
+    deque<int> bfs = { 1 };
+    while (!bfs.empty()) {
+        int curr = bfs.front();
+        bfs.pop_front();
+        for (int node = 1; node <= n; node++) {
+            if (!visited[node] && graph[curr][node] != 0) {
+                visited[node] = 1;
+                parents[node] = curr;
+                // reached final node
+                if (node == n)
+                    return true;
+                bfs.push_back(node);
+            }
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    parents.resize(n + 1);
+    for (int i = 1; i <= n; i++) {
+        graph[i].assign(n + 1, 0);
+    }
+    int l, r, c;
+    for (int i = 0; i < m; i++) {
+        cin >> l >> r >> c;
+        graph[l][r] += c;
+    }
+    long long flux = 0;
+    while (find_increasing_path(n)) {
+        int curr = n;
+        long long path_min = INT_MAX;
+        // get min on 
+        while (curr != 1) {
+            int parent = parents[curr];
+            path_min = min(path_min, graph[parent][curr]);
+            curr = parent;
+        }
+        flux += path_min;
+        // update graph
+        curr = n;
+        while (curr != 1) {
+            int parent = parents[curr];
+            graph[parent][curr] -= path_min;
+            graph[curr][parent] += path_min;
+            curr = parent;
+        }
+    }
+    cout << flux;
+}

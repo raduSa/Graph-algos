@@ -1,0 +1,70 @@
+#include <iostream>
+#include <bits/stdc++.h>
+#include <unordered_map>
+
+using namespace std;
+
+vector<vector<int>> graph;
+vector<bool> visited;
+vector<int> parent;
+bool foundCycle = false;
+
+int dfs(int curr) {
+    if (visited[curr]) {
+        foundCycle = true;
+        return curr;
+    }
+    visited[curr] = true;
+    for (auto node : graph[curr]) {
+        if (!foundCycle && parent[curr] != node) {
+            parent[node] = curr;       
+            int aux = dfs(node);     
+            if (aux)
+                return aux;
+        }        
+    }
+    return 0;
+}
+
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    visited.assign(n + 1, 0);
+    parent.resize(n + 1);
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+    }
+    for (int i = 0; i < m; i++) {
+        int l, r;
+        cin >> l >> r;
+        graph[l].push_back(r);
+        graph[r].push_back(l);
+    }
+    int res = 0;
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i])
+            if (res = dfs(i)) {
+                break;
+            }
+    }
+    if (res) {
+        int curr = res;
+        int p = parent[curr];
+        int cnt = 0;
+        while (p != curr) {
+            cnt++;
+            p = parent[p];
+        }
+        cout << cnt + 2 << endl;
+        cout << curr << " ";
+        p = parent[curr];
+        while (p != curr) {
+            cout << p << " ";
+            p = parent[p];
+        }
+        cout << curr;
+    }
+    else cout << "IMPOSSIBLE";
+}

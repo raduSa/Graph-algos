@@ -1,0 +1,68 @@
+#include <iostream>
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+struct edge {
+    int l, r, c;
+};
+ 
+bool compare(const edge& a, const edge& b) {
+    return a.c < b.c;
+}
+ 
+vector<edge> edgeList;
+vector<int> parent;
+vector<int> depth;
+ 
+int findParent(int curr) {
+    if (parent[curr] == curr)
+        return curr;
+    int p = findParent(parent[curr]);
+    parent[curr] = p;
+    return p;
+}
+ 
+int main()
+{
+    int n, m, l, r, c;
+    cin >> n >> m;
+    edgeList;
+    parent.resize(n + 1);
+    depth.resize(n + 1);
+    edge temp;
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+        depth[i] = 0;
+    }
+    for (int i = 0; i < m; i++) {
+        cin >> l >> r >> c;
+        temp.l = l, temp.r = r, temp.c = c;
+        edgeList.push_back(temp);
+    }
+    int cnt = n;
+    long long res = 0;
+    sort(edgeList.begin(), edgeList.end(), compare);
+    for (auto e : edgeList) {
+        int l = e.l, r = e.r, c = e.c;
+        int p1 = findParent(l);
+        int p2 = findParent(r);
+        if (p1 == p2)
+            continue;
+        cnt--;
+        if (depth[p1] > depth[p2])
+            parent[p2] = p1;
+        else if (depth[l] < depth[r])
+            parent[p1] = p2;
+        else {
+            parent[p2] = p1;
+            depth[p1]++;
+        }
+        res += e.c;
+    }
+    if (cnt == 1)
+        cout << res;
+    else cout << "IMPOSSIBLE";
+        
+    return 0;
+}

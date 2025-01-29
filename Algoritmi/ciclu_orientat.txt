@@ -1,0 +1,64 @@
+#include <iostream>
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+int n, m;
+vector<bool> visited;
+vector<bool> inStack;
+vector<vector<int>> graph;
+vector<int> st;
+bool resCompleted = false;
+ 
+bool dfs(int curr) {
+    st.push_back(curr);
+    if (inStack[curr])
+        return true;
+    inStack[curr] = true;
+    for (auto node : graph[curr]) {
+            if (!visited[node] && dfs(node))
+                return true;
+        }
+    st.pop_back();
+    inStack[curr] = false;
+    visited[curr] = true;
+    return false;
+}
+int main()
+{
+    cin>>n>>m;
+    graph.resize(n+1);
+    for (int i=0; i<n+1; i++) {
+        visited.push_back(0);
+        inStack.push_back(0);
+    }
+ 
+    int l, r;
+    for (int i=0; i<m; i++) {
+        cin>>l>>r;
+        graph[l].push_back(r);
+    }
+    for (int i=1; i<=n; i++)
+    if(!visited[i] && dfs(i))
+        break;
+ 
+    if (st.size()) {
+        vector<int> cycle;
+        int start = st[st.size()-1];
+        cycle.push_back(start);
+        st.pop_back();
+        int x = st[st.size()-1];
+        while (x != start) {
+            cycle.push_back(x);
+            st.pop_back();
+            x = st[st.size()-1];
+        }
+        cycle.push_back(start);
+        cout<<cycle.size()<<"\n";
+        reverse(cycle.begin(), cycle.end());
+        for (auto el : cycle)
+            cout<<el<<" ";
+    }
+    else cout<<"IMPOSSIBLE";
+    return 0;
+}

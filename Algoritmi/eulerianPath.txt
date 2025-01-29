@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+#include <unordered_map>
+#include <unordered_set>
+ 
+using namespace std;
+ 
+vector<vector<int>> graph;
+vector<int> gradI;
+vector<int> gradE;
+vector<int> st({ 1 });
+vector<int> res;
+ 
+int main()
+{
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    gradI.assign(n + 1, 0);
+    gradE.assign(n + 1, 0);
+    int l, r;
+    for (int i = 0; i < m; i++) {
+        cin >> l >> r;
+        graph[l].push_back(r);
+        gradI[r]++;
+        gradE[l]++;
+    }
+    if (gradE[1] - gradI[1] != 1) {
+        cout << "IMPOSSIBLE";
+        return 0;
+    }
+    for (int i = 2; i < n; i++) {
+        if (gradI[i] != gradE[i]) {
+            cout << "IMPOSSIBLE";
+            return 0;
+        }
+    }
+    if (gradI[n] - gradE[n] != 1) {
+        cout << "IMPOSSIBLE";
+        return 0;
+    }
+ 
+    while (!st.empty()) {
+        int currNode = st.back();
+        if (!graph[currNode].empty()) {
+            st.push_back(graph[currNode].back());
+            graph[currNode].pop_back();
+        }
+        else {
+            res.push_back(currNode);
+            st.pop_back();
+        }
+    }
+    if (res.size() != m + 1) {
+        cout << "IMPOSSIBLE";
+        return 0;
+    }
+    for (auto i = res.rbegin(); i != res.rend(); i++)
+        cout << *i << " ";
+    return 0;
+}

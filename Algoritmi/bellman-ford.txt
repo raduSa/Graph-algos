@@ -1,0 +1,86 @@
+#include <iostream>
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+vector<vector<pair<int, int>>> graph;
+ 
+int main()
+{
+    int n, m, l, r, p;
+    cin>>n>>m;
+    for (int i=0; i<=n; i++)
+        graph.push_back(vector<pair<int, int>>());
+    for (int i=0; i<m; i++) {
+        cin>>l>>r>>p;
+        graph[l].push_back(make_pair(r, p));
+    }
+    vector<long long> dist(n+1, LLONG_MIN);
+    dist[1] = 0;
+    deque<int> bfs = {1};
+    for (int k=0; k<n-1; k++) {
+        int aux = bfs.size();
+        unordered_set<int> newNodes;
+        for (int i=0; i<aux; i++) {
+            auto curr = bfs.front();
+            bfs.pop_front();
+            for (auto node : graph[curr]) {
+                int price = node.second;
+                int nextNode = node.first;
+                if (k==0) {
+                    dist[nextNode] = price;
+                }
+                else dist[nextNode] = max(dist[nextNode], price + dist[curr]);
+                newNodes.insert(nextNode);
+            }
+        }
+        for (auto node : newNodes)
+            bfs.push_back(node);
+    }
+    long long res = dist[n];
+    // check for pozitive cicles
+    bool cicle = 0;
+    vector<bool> partOfCycle(n+1, false);
+    for (int i=0; i<bfs.size(); i++) {
+        auto curr = bfs[i];
+        for (auto node : graph[curr]) {
+                int price = node.second;
+                int nextNode = node.first;
+                if (dist[nextNode] < price + dist[curr]) {
+                    cicle = true;
+                    partOfCycle[curr] = true;
+                    partOfCycle[nextNode] = true;
+                }
+            }
+    }
+    if (!cicle) {
+        cout<<res;
+        return 0;
+    }
+    // check if res is affected by any cycles
+    if (partOfCycle[n]) {
+        cout<<-1;
+        return 0;
+    }
+
+    bfs.clear();
+    for (int i=1; i<=n; i++)
+        if (partOfCycle[i])
+            bfs.push_back(i);
+    // see what nodes the cycle can extend to
+    while (bfs.size()) {
+        int aux = bfs.size();
+        for (int i=0; i<aux; i++) {
+            int curr = bfs.front();
+            bfs.pop_front();
+            for (auto node : graph[curr])
+                if (!partOfCycle[node.first])
+                    bfs.push_back(node.first), partOfCycle[node.first] = true;
+        }
+    }
+ 
+    if (partOfCycle[n])
+        cout<<-1;
+    else cout<<res;
+    return 0;
+}

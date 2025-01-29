@@ -1,0 +1,64 @@
+#include <iostream>
+#include <bits/stdc++.h>
+ 
+using namespace std;
+ 
+int n, m;
+vector<int> parent;
+ 
+int findParent(int curr) {
+    if (parent[curr] == curr)
+        return curr;
+    else {
+        int p = findParent(parent[curr]);
+        parent[curr] = p;
+        return p;
+    }
+}
+ 
+int main()
+{
+    cin>>n>>m;
+    for (int i=0; i<n; i++)
+        parent.push_back(i);
+    vector<int> height(n, 1);
+    int cnt = n;
+    int l, r, pl, pr;
+    for (int i=0; i<m; i++) {
+        cin>>l>>r;
+        l--;
+        r--;
+        pl = findParent(l);
+        pr = findParent(r);
+        if (pl == pr)
+            continue;
+        else {
+            cnt--;
+            if (height[pl] == height[pr]) {
+                parent[pr] = pl;
+                height[pl]++;
+            }
+            else if (height[pl] < height[pr])
+                parent[pl] = pr;
+            else parent[pr] = pl;
+        }
+    }
+    // print the edges needed to connect components
+    cnt--;
+    if (!cnt)
+        cout<<0;
+    else {
+        cout<<cnt<<"\n";
+        int firstNode;
+        bool firstNodeFound = false;
+        for (int i=0; i<n; i++)
+            if (parent[i] == i) {
+                if (!firstNodeFound) {
+                    firstNode = i + 1;
+                    firstNodeFound = true;
+                }
+                else cout<<firstNode<<" "<<i+1<<"\n";
+            }
+    }
+    return 0;
+}
